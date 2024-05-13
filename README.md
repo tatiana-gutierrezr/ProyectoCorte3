@@ -84,6 +84,10 @@ DELETE /empleados/3
 ```json
 POST /pago-nominas
 ```
+## Nota sobre ejemplos de uso
+En los ejemplos proporcionados, se utiliza el mismo correo electrónico para todos los empleados (`correoempleados.pa@gmail.com`). Esto se hace con el propósito de demostrar el funcionamiento del envío automático de desprendibles de pago por correo electrónico. Al usar el mismo correo para todos los empleados, podemos comprobar que cada uno recibe su desprendible de pago correctamente.
+
+Es importante tener en cuenta que en un entorno de producción, cada empleado tendría su propio correo electrónico único y personalizado.
 
 ## Errores y Manejo de Excepciones
 - Códigos de Estado:
