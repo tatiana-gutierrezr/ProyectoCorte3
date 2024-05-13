@@ -1,0 +1,214 @@
+[
+    {
+        "correo": "correoempleados.pa@gmail.com",
+        "nombre": "Juan",
+        "apellido": "Perez",
+        "id": 1,
+        "rol": "gestor_rrhh",
+        "salario_base": 20000,
+        "deducciones": [
+            {"concepto": "Pago EPS", "monto": 1000},
+            {"concepto": "Impuestos", "monto": 2000}
+        ],
+        "bonificaciones": [
+            {"concepto": "Bono de productividad", "monto": 3000}
+        ],
+        "contrasena": "juan123",
+        "direccion": "Calle 100 #58-16",
+        "celular": "3264576856",
+        "superadmin": "no"
+    },
+    {
+        "correo": "correoempleados.pa@gmail.com",
+        "nombre": "Lina",
+        "apellido": "Sanchez",
+        "id": 2,
+        "rol": "recepcionista",
+        "salario_base": 25000,
+        "deducciones": [
+            {"concepto": "Pago EPS", "monto": 1000},
+            {"concepto": "Impuestos", "monto": 1500}
+        ],
+        "bonificaciones": [],
+        "contrasena": "hola2333",
+        "direccion": "Calle 64 #112-82",
+        "celular": "3054364754",
+        "superadmin": "no"
+    },
+    {
+        "correo": "correoempleados.pa@gmail.com",
+        "nombre": "Camilo",
+        "apellido": "Duarte",
+        "id": 3,
+        "rol": "gerente",
+        "salario_base": 25000,
+        "deducciones": [
+            {"concepto": "Pago EPS", "monto": 1200},
+            {"concepto": "Impuestos", "monto": 1800}
+        ],
+        "bonificaciones": [],
+        "contrasena": "rrhh9018",
+        "direccion": "Calle 87 #7-24",
+        "celular": "3087654634",
+        "superadmin": "no"
+    },
+    {
+        "correo": "correoempleados.pa@gmail.com",
+        "nombre": "Sofia",
+        "apellido": "Vives",
+        "id": 4,
+        "rol": "gestor_rrhh",
+        "salario_base": 22000,
+        "deducciones": [
+            {"concepto": "Pago EPS", "monto": 1500},
+            {"concepto": "Impuestos", "monto": 2500}
+        ],
+        "bonificaciones": [
+            {"concepto": "Bono de productividad", "monto": 4000}
+        ],
+        "contrasena": "1187675643",
+        "direccion": "Calle 74a #116b-60",
+        "celular": "3129808899",
+        "superadmin": "no"
+    },
+    {
+        "correo": "correoempleados.pa@gmail.com",
+        "nombre": "Ana",
+        "apellido": "Ortega",
+        "id": 5,
+        "rol": "gestor_rrhh",
+        "salario_base": 19000,
+        "deducciones": [
+            {"concepto": "Pago EPS", "monto": 800},
+            {"concepto": "Impuestos", "monto": 1200}
+        ],
+        "bonificaciones": [],
+        "contrasena": "clave123",
+        "direccion": "Cra 68d #24a-50",
+        "celular": "3270988876",
+        "superadmin": "si"
+    },
+    {
+        "correo": "correoempleados.pa@gmail.com",
+        "nombre": "Jose",
+        "apellido": "Gomez",
+        "id": 6,
+        "rol": "gestor_rrhh",
+        "salario_base": 21000,
+        "deducciones": [
+            {"concepto": "Pago EPS", "monto": 900},
+            {"concepto": "Impuestos", "monto": 1400}
+        ],
+        "bonificaciones": [],
+        "contrasena": "abc456",
+        "direccion": "Cra 4 #24-37",
+        "celular": "3067541209",
+        "superadmin": "no"
+    },
+    {
+        "correo": "correoempleados.pa@gmail.com",
+        "nombre": "Laura",
+        "apellido": "Rodriguez",
+        "id": 7,
+        "rol": "recepcionista",
+        "salario_base": 24000,
+        "deducciones": [
+            {"concepto": "Pago EPS", "monto": 1100},
+            {"concepto": "Impuestos", "monto": 2000}
+        ],
+        "bonificaciones": [],
+        "contrasena": "pass789",
+        "direccion": "Calle 64 #1-15",
+        "celular": "3099871232",
+        "superadmin": "no"
+    },
+    {
+        "correo": "correoempleados.pa@gmail.com",
+        "nombre": "Carlos",
+        "apellido": "Rodriguez",
+        "id": 8,
+        "rol": "administrador",
+        "salario_base": 28000,
+        "deducciones": [
+            {"concepto": "Pago EPS", "monto": 1300},
+            {"concepto": "Impuestos", "monto": 2200}
+        ],
+        "bonificaciones": [
+            {"concepto": "Bono de productividad", "monto": 3500}
+        ],
+        "contrasena": "admin123",
+        "direccion": "Calle 72A #1-40",
+        "celular": "3045643249",
+        "superadmin": "no"
+    },
+    {
+        "correo": "correoempleados.pa@gmail.com",
+        "nombre": "Roberto",
+        "apellido": "Castro",
+        "id": 9,
+        "rol": "diseñador",
+        "salario_base": 30000,
+        "deducciones": [
+            {"concepto": "Pago EPS", "monto": 1600},
+            {"concepto": "Impuestos", "monto": 2600}
+        ],
+        "bonificaciones": [],
+        "contrasena": "gestor2022",
+        "direccion": "Cra 111A #148-50",
+        "celular": "3076432123",
+        "superadmin": "no"
+    },
+    {
+        "correo": "correoempleados.pa@gmail.com",
+        "nombre": "Julian",
+        "apellido": "Martinez",
+        "id": 10,
+        "rol": "administrador",
+        "salario_base": 32000,
+        "deducciones": [
+            {"concepto": "Pago EPS", "monto": 1800},
+            {"concepto": "Impuestos", "monto": 2800}
+        ],
+        "bonificaciones": [
+            {"concepto": "Bono de productividad", "monto": 5000}
+        ],
+        "contrasena": "julio123",
+        "direccion": "Cra 74 #138-69",
+        "celular": "3098907264",
+        "superadmin": "no"
+    },
+    {
+        "correo": "correoempleados.pa@gmail.com",
+        "nombre": "Luisa",
+        "apellido": "Hernandez",
+        "id": 11,
+        "rol": "diseñador",
+        "salario_base": 31000,
+        "deducciones": [
+            {"concepto": "Pago EPS", "monto": 1700},
+            {"concepto": "Impuestos", "monto": 3000}
+        ],
+        "bonificaciones": [],
+        "contrasena": "luisa456",
+        "direccion": "Cra 56a #130A–86",
+        "celular": "3104538276",
+        "superadmin": "no"
+    },
+    {
+        "correo": "correoempleados.pa@gmail.com",
+        "nombre": "Juana",
+        "apellido": "Costa",
+        "id": 12,
+        "rol": "servicios varios",
+        "salario_base": 29000,
+        "deducciones": [
+            {"concepto": "Pago EPS", "monto": 1500},
+            {"concepto": "Impuestos", "monto": 2800}
+        ],
+        "bonificaciones": [],
+        "contrasena": "juana789",
+        "direccion": "Calle 20A Sur #8-52",
+        "celular": "3198276340",
+        "superadmin": "no"
+    }
+]
