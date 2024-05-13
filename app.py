@@ -1,120 +1,81 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask, request, jsonify, current_app
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-import bcrypt
+from flask import Flask, request, jsonify
 import os
 import base64
-from functools import wraps
 from dotenv import load_dotenv
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Attachment, FileContent, FileName, FileType, Disposition
 import datetime
+import json
 
-#Cargamos la API key de SendGrid desde .env
+# Cargar datos de empleados desde el archivo JSON
+def cargar_empleados_desde_json(file_path):
+    with open(file_path, 'r') as file:
+        empleados = json.load(file)
+    return empleados
+
+empleados_file_path = 'ds_empleados.json'
+empleados = cargar_empleados_desde_json(empleados_file_path)
+
+# Cargamos la API key de SendGrid desde .env
 load_dotenv()
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
-#Configuración Flask-Login
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-empleados = []
-
-#Definimos roles y permisos
-roles_con_permiso = {
-    'empleado': ['ver_perfil'],
-    'gestor_rrhh': ['ver_perfil', 'gestionar_empleados'],
-    'administrador': ['ver_perfil', 'gestionar_empleados', 'eliminar_empleado']
-}
-
-#Clase de modelo de usuario para Flask-Login
-class User(UserMixin):
-    def __init__(self, id):
-        self.id = id
-
-#Autenticación de empleados
-def autenticar_correo(correo, contrasena):
+def autenticar_id_contrasena(empleado_id, contrasena):
     for empleado in empleados:
-        if empleado['correo'] == correo and bcrypt.checkpw(contrasena.encode(), empleado['contrasena'].encode()):
-            user = User(empleado['id'])
-            login_user(user)
+        if empleado['id'] == empleado_id and empleado['contrasena'] == contrasena:
             return empleado
     return None
 
-#Verificar permisos de empleado
-def verificar_permiso(empleado, permiso):
-    return permiso in roles_con_permiso.get(empleado['rol'], [])
-
-#Decorador para verificar permisos de acceso
-def verificar_permisos(permiso):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            if not verificar_permiso(current_user, permiso):
-                return jsonify({'error': 'No tienes permiso para acceder a esta información'}), 403
-            return func(*args, **kwargs)
-        return wrapper
-    return decorator
-
-#Decorador para cargar el usuario actual
-@login_manager.user_loader
-def load_user(user_id):
-    return User(user_id)
-
-#Rutas para la autenticación y gestión de empleados
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    if not data or 'correo' not in data or 'contrasena' not in data:
-        return jsonify({'error': 'Credenciales incompletas'}), 400
+    print("Datos de solicitud:", data)
+    if not data:
+        return jsonify({'error': 'No se proporcionaron datos en el cuerpo de la solicitud'}), 400
 
-    correo = data['correo']
-    contrasena = data['contrasena']
-    empleado = autenticar_correo(correo, contrasena)
+    empleado_id = data.get('id')
+    contrasena = data.get('contrasena')
+
+    # Autenticar con el ID y contraseña del empleado
+    empleado = autenticar_id_contrasena(empleado_id, contrasena)
 
     if empleado:
         return jsonify({'mensaje': 'Inicio de sesión exitoso', 'empleado': empleado}), 200
-    else:
-        return jsonify({'error': 'Credenciales incorrectas'}), 401
 
+    return jsonify({'error': 'Empleado no autenticado'}), 401
+    
 @app.route('/logout')
-@login_required
 def logout():
-    logout_user()
     return jsonify({'mensaje': 'Sesión cerrada'}), 200
 
 @app.route('/empleados', methods=['GET', 'POST'])
-@login_required
-@verificar_permisos('gestionar_empleados')
 def gestion_empleados():
     if request.method == 'GET':
         return jsonify(empleados)
     elif request.method == 'POST':
         data = request.get_json()
         
-        #Verificar si todos los campos tienen información
+        # Verificar si todos los campos tienen información
         required_fields = ['correo', 'nombre', 'apellido', 'rol', 'salario_base', 'deducciones', 'bonificaciones', 'contrasena', 'direccion', 'celular', 'superadmin']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': 'Datos incompletos'}), 400
         
-        #Generar ID dependiendo del último registro
+        # Generar ID dependiendo del último registro
         if len(empleados) > 0:
             last_id = empleados[-1]['id']
             new_id = last_id + 1
         else:
             new_id = 1
             
-        #Celular debe tener solo números y 10 dígitos
+        # Celular debe tener solo números y 10 dígitos
         celular = data.get('celular', '')
         if not celular.isdigit() or len(celular) != 10:
             return jsonify({'error': 'El número de celular debe contener solo números y tener una longitud de 10 dígitos'}), 400
-        
-        #Hashear la contraseña
-        hashed_password = bcrypt.hashpw(data['contrasena'].encode(), bcrypt.gensalt()).decode()
         
         empleado = {
             'id': new_id,
@@ -125,7 +86,7 @@ def gestion_empleados():
             'salario_base': data['salario_base'],
             'deducciones': data['deducciones'],
             'bonificaciones': data['bonificaciones'],
-            'contrasena': hashed_password,
+            'contrasena': data['contrasena'],
             'direccion': data['direccion'],
             'celular': data['celular'],
             'superadmin': data['superadmin']
@@ -135,25 +96,20 @@ def gestion_empleados():
         return jsonify(empleado), 201
 
 @app.route('/empleados/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-@login_required
-@verificar_permisos('gestionar_empleados')
 def gestion_empleado(id):
+    empleado = next((empleado for empleado in empleados if empleado['id'] == id), None)
+    
+    if not empleado:
+        return jsonify({'mensaje': 'Empleado no encontrado'}), 404
+    
     if request.method == 'GET':
-        empleado = next((empleado for empleado in empleados if empleado['id'] == id), None)
-        if empleado:
-            return jsonify(empleado)
-        else:
-            return jsonify({'mensaje': 'Empleado no encontrado'}), 404
+        return jsonify(empleado)
+    
     elif request.method == 'PUT':
-        empleado = next((empleado for empleado in empleados if empleado['id'] == id), None)
-        if empleado:
-            data = request.get_json()
+        data = request.get_json()
 
-            #Verificar si el usuario actual tiene permiso para modificar el salario y el cargo
-            if current_user['rol'] != 'gestor_rrhh' and current_user.get('superadmin') != 'si':
-                return jsonify({'error': 'No tienes permiso para modificar el salario y el cargo'}), 403
-
-            #Actualizar los campos permitidos del empleado
+        # Verificar si el rol del empleado es 'gestor_rrhh'
+        if empleado['rol'] == 'gestor_rrhh':
             if 'salario' in data:
                 empleado['salario'] = data['salario']
             if 'rol' in data:
@@ -161,23 +117,18 @@ def gestion_empleado(id):
 
             return jsonify({'mensaje': 'Empleado actualizado correctamente', 'empleado': empleado}), 200
         else:
-            return jsonify({'mensaje': 'Empleado no encontrado'}), 404
+            return jsonify({'error': 'No tienes permiso para modificar el salario y el cargo'}), 403
+    
     elif request.method == 'DELETE':
-        empleado = next((empleado for empleado in empleados if empleado['id'] == id), None)
-        if empleado:
-            #Verificar permisos para eliminar empleados
-            if not verificar_permiso(current_user, 'eliminar_empleado'):
-                return jsonify({'error': 'No tienes permiso para eliminar empleados'}), 403
-            
+        # Verificar si el rol del empleado es 'gestor_rrhh'
+        if empleado['rol'] == 'gestor_rrhh':
             empleados.remove(empleado)
             return jsonify({'mensaje': 'Empleado eliminado'})
         else:
-            return jsonify({'mensaje': 'Empleado no encontrado'}), 404
+            return jsonify({'error': 'No tienes permiso para eliminar empleados'}), 403
 
-#Rutas para la gestión de recursos humanos (solo accesible para gestores de RRHH)
+# Rutas para la gestión de recursos humanos (solo accesible para gestores de RRHH)
 @app.route('/gestion-humana/empleados', methods=['GET', 'POST'])
-@login_required
-@verificar_permisos('gestionar_empleados')
 def gestion_empleados_rrhh():
     # Verificar si el correo autenticado es un gestor de RRHH
     if 'Authorization' in request.headers:
@@ -193,9 +144,6 @@ def gestion_empleados_rrhh():
                     if 'correo' not in data or 'contrasena' not in data or 'rol' not in data:
                         return jsonify({'error': 'Datos incompletos'}), 400
                         
-                    #Hashear la contraseña
-                    hashed_password = bcrypt.hashpw(data['contrasena'].encode(), bcrypt.gensalt()).decode()
-                    
                     if len(empleados) > 0:
                         last_id = empleados[-1]['id']
                         new_id = last_id + 1
@@ -211,7 +159,7 @@ def gestion_empleados_rrhh():
                         'salario_base': data['salario_base'],
                         'deducciones': data['deducciones'],
                         'bonificaciones': data['bonificaciones'],
-                        'contrasena': hashed_password,
+                        'contrasena': data['contrasena'],
                         'direccion': data['direccion'],
                         'celular': data['celular'],
                         'superadmin': data['superadmin']
@@ -221,10 +169,8 @@ def gestion_empleados_rrhh():
     return jsonify({'error': 'No tienes permiso para acceder a esta información'}), 403
 
 @app.route('/gestion-humana/empleados/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-@login_required
-@verificar_permisos('gestionar_empleados')
 def gestion_empleado_rrhh(id):
-    #Verificar si el correo autenticado es un gestor de RRHH
+    # Verificar si el correo autenticado es un gestor de RRHH
     if 'Authorization' in request.headers:
         auth_data = request.headers['Authorization'].split()
         if len(auth_data) == 2 and auth_data[0] == 'Bearer':
